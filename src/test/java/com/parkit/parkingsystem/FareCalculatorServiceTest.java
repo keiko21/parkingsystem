@@ -1,6 +1,5 @@
 package com.parkit.parkingsystem;
 
-import com.parkit.parkingsystem.constants.Fare;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
@@ -8,11 +7,10 @@ import com.parkit.parkingsystem.service.FareCalculatorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class FareCalculatorServiceTest {
 
@@ -32,7 +30,7 @@ public class FareCalculatorServiceTest {
 
         fareCalculatorService.calculateFare(ticket);
 
-        assertEquals(ticket.getPrice(), expectedFare(Fare.CAR_RATE_PER_HOUR));
+        assertThat(ticket.getPrice()).isEqualTo(1.5);
     }
 
     @Test
@@ -41,21 +39,23 @@ public class FareCalculatorServiceTest {
 
         fareCalculatorService.calculateFare(ticket);
 
-        assertEquals(ticket.getPrice(), expectedFare(Fare.BIKE_RATE_PER_HOUR));
+        assertThat(ticket.getPrice()).isEqualTo(1.0);
     }
 
     @Test
-    public void calculateFareUnkownType(){
+    public void calculateFareUnkownType() {
         Ticket ticket = setTicket(60, null);
 
-        assertThrows(NullPointerException.class, () -> fareCalculatorService.calculateFare(ticket));
+        assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> fareCalculatorService.calculateFare(ticket));
     }
 
     @Test
-    public void calculateFareBikeWithFutureInTime(){
+    public void calculateFareBikeWithFutureInTime() {
         Ticket ticket = setTicket(-60, ParkingType.BIKE);
 
-        assertThrows(IllegalArgumentException.class, () -> fareCalculatorService.calculateFare(ticket));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> fareCalculatorService.calculateFare(ticket));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class FareCalculatorServiceTest {
 
         fareCalculatorService.calculateFare(ticket);
 
-        assertEquals(ticket.getPrice(), expectedFare(Fare.BIKE_RATE_PER_HOUR));
+        assertThat(ticket.getPrice()).isEqualTo(0.75);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class FareCalculatorServiceTest {
 
         fareCalculatorService.calculateFare(ticket);
 
-        assertEquals(ticket.getPrice(), expectedFare(Fare.CAR_RATE_PER_HOUR));
+        assertThat(ticket.getPrice()).isEqualTo(1.13);
     }
 
     @Test
@@ -82,15 +82,12 @@ public class FareCalculatorServiceTest {
 
         fareCalculatorService.calculateFare(ticket);
 
-        assertEquals(ticket.getPrice(), expectedFare(Fare.CAR_RATE_PER_HOUR));
+        assertThat(ticket.getPrice()).isEqualTo(36);
     }
 
     private Ticket setTicket(int parkingTimeInMinutes, ParkingType parkingType) {
-        Date inTime = new Date();
-        final long parkingTimeInMilliseconds = TimeUnit.MINUTES.toMillis(parkingTimeInMinutes);
-        inTime.setTime(System.currentTimeMillis() - parkingTimeInMilliseconds);
-
-        Date outTime = new Date();
+        LocalDateTime inTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0);
+        LocalDateTime outTime = inTime.plusMinutes(parkingTimeInMinutes);
 
         ParkingSpot parkingSpot = new ParkingSpot(1, parkingType, false);
 
@@ -99,13 +96,5 @@ public class FareCalculatorServiceTest {
         ticket.setParkingSpot(parkingSpot);
 
         return ticket;
-    }
-
-    private double expectedFare(double fareType) {
-        final long parkingTimeInMilliseconds = ticket.getOutTime().getTime() - ticket.getInTime().getTime();
-        final double numberMillisecondsInOneHour = TimeUnit.HOURS.toMillis(1);
-        double parkingTimeInHours = parkingTimeInMilliseconds / numberMillisecondsInOneHour;
-
-        return parkingTimeInHours * fareType;
     }
 }
