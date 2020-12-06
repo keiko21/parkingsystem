@@ -28,7 +28,7 @@ public class FareCalculatorServiceTest {
     public void calculateFareCar(){
         ticket = setTicket(60, ParkingType.CAR);
 
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, false);
 
         assertThat(ticket.getPrice()).isEqualTo(1.5);
     }
@@ -37,7 +37,7 @@ public class FareCalculatorServiceTest {
     public void calculateFareBike(){
         Ticket ticket = setTicket(60, ParkingType.BIKE);
 
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, false);
 
         assertThat(ticket.getPrice()).isEqualTo(1.0);
     }
@@ -47,7 +47,7 @@ public class FareCalculatorServiceTest {
         Ticket ticket = setTicket(60, null);
 
         assertThatExceptionOfType(NullPointerException.class)
-                .isThrownBy(() -> fareCalculatorService.calculateFare(ticket));
+                .isThrownBy(() -> fareCalculatorService.calculateFare(ticket, false));
     }
 
     @Test
@@ -55,14 +55,14 @@ public class FareCalculatorServiceTest {
         Ticket ticket = setTicket(-60, ParkingType.BIKE);
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> fareCalculatorService.calculateFare(ticket));
+                .isThrownBy(() -> fareCalculatorService.calculateFare(ticket, false));
     }
 
     @Test
     public void calculateFareBikeWithLessThanOneHourParkingTime(){
         Ticket ticket = setTicket(45, ParkingType.BIKE);
 
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, false);
 
         assertThat(ticket.getPrice()).isEqualTo(0.75);
     }
@@ -71,18 +71,36 @@ public class FareCalculatorServiceTest {
     public void calculateFareCarWithLessThanOneHourParkingTime(){
         Ticket ticket = setTicket(45, ParkingType.CAR);
 
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, false);
 
         assertThat(ticket.getPrice()).isEqualTo(1.13);
     }
 
     @Test
-    public void calculateFareCarWithMoreThanADayParkingTime(){
+    public void calculateFareCarWithMoreThanADayParkingTime() {
         Ticket ticket = setTicket(24 * 60, ParkingType.CAR);
 
-        fareCalculatorService.calculateFare(ticket);
+        fareCalculatorService.calculateFare(ticket, false);
 
         assertThat(ticket.getPrice()).isEqualTo(36);
+    }
+
+    @Test
+    public void calculateFareCarRecurrentUser() {
+        ticket = setTicket(60, ParkingType.CAR);
+
+        fareCalculatorService.calculateFare(ticket, true);
+
+        assertThat(ticket.getPrice()).isEqualTo(1.43);
+    }
+
+    @Test
+    public void calculateFareBikeRecurrentUser() {
+        Ticket ticket = setTicket(60, ParkingType.BIKE);
+
+        fareCalculatorService.calculateFare(ticket, true);
+
+        assertThat(ticket.getPrice()).isEqualTo(0.95);
     }
 
     private Ticket setTicket(int parkingTimeInMinutes, ParkingType parkingType) {
