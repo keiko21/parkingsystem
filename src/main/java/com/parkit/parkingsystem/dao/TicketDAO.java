@@ -16,6 +16,27 @@ public class TicketDAO {
 
     public DataBaseConfig dataBaseConfig = new DataBaseConfig();
 
+    public boolean checkRecurrentUser(String vehicleRegNumber) {
+        Connection con;
+        int userNumberRecurrences = 0;
+
+        try {
+            con = dataBaseConfig.getConnection();
+            PreparedStatement ps = con.prepareStatement(DBConstants.GET_USER_RECURRENCES);
+            ps.setString(1, vehicleRegNumber);
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()) {
+                userNumberRecurrences = resultSet.getInt(1);
+            }
+            dataBaseConfig.closeResultSet(resultSet);
+            dataBaseConfig.closePreparedStatement(ps);
+        } catch (SQLException | ClassNotFoundException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return userNumberRecurrences > 0;
+    }
+
     public void saveTicket(Ticket ticket) {
         Connection con = null;
         try {

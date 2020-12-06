@@ -7,7 +7,9 @@ import java.time.Duration;
 
 public class FareCalculatorService {
 
-    public void calculateFare(Ticket ticket) {
+    public static final double MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER = 0.95;
+
+    public void calculateFare(Ticket ticket, boolean recurrentUser) {
         if ((ticket.getOutTime() == null) || (ticket.getOutTime().isBefore(ticket.getInTime()))) {
             String exceptionMessage = "Out time provided is incorrect.";
             if (ticket.getOutTime() != null) {
@@ -20,13 +22,21 @@ public class FareCalculatorService {
 
         switch (ticket.getParkingSpot().getParkingType()) {
             case CAR: {
-                double price = Math.ceil(Fare.CAR_RATE_PER_HOUR * parkingTimeInHours * 100) / 100;
-                ticket.setPrice(price);
+                double price = Fare.CAR_RATE_PER_HOUR * parkingTimeInHours;
+                if (recurrentUser) {
+                    price *= MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER;
+                }
+                final double ceilPrice = Math.ceil(price * 100) / 100;
+                ticket.setPrice(ceilPrice);
                 break;
             }
             case BIKE: {
-                double price = Math.floor(Fare.BIKE_RATE_PER_HOUR * parkingTimeInHours * 100) / 100;
-                ticket.setPrice(price);
+                double price = Fare.BIKE_RATE_PER_HOUR * parkingTimeInHours;
+                if (recurrentUser) {
+                    price *= MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER;
+                }
+                final double ceilPrice = Math.ceil(price * 100) / 100;
+                ticket.setPrice(ceilPrice);
                 break;
             }
             default:

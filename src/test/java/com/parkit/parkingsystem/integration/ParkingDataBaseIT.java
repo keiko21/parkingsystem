@@ -37,12 +37,13 @@ public class ParkingDataBaseIT {
 
     @Mock
     private static InputReaderUtil inputReaderUtil;
-    private static final DataBaseTestConfig dataBaseTestConfig = new DataBaseTestConfig();
+    private static DataBaseTestConfig dataBaseTestConfig;
 
     @BeforeAll
     static void setUp() {
         parkingSpotDAO = new ParkingSpotDAO();
         ticketDAO = new TicketDAO();
+        dataBaseTestConfig = new DataBaseTestConfig();
         ticketDAO.dataBaseConfig = dataBaseTestConfig;
         dataBasePrepareService = new DataBasePrepareService();
         parkingSpotDAO.dataBaseConfig = dataBaseTestConfig;
@@ -84,8 +85,59 @@ public class ParkingDataBaseIT {
     }
 
     @Test
+    public void testParkingACarRecurrentUser() throws SQLException, ClassNotFoundException {
+        ParkingService parkingService = parkACarWithFakeTicket();
+        parkingService.processExitingVehicle();
+        when(inputReaderUtil.readSelection()).thenReturn(1);
+        parkACar();
+
+        final ResultSet ticketFromDatabase = getTicketFromDatabase();
+
+        int parkingNumber = 0;
+        Timestamp inTime = Timestamp.from(Instant.MIN);
+        String parkingType = null;
+        boolean available = true;
+
+        if (ticketFromDatabase.next()) {
+            parkingNumber = ticketFromDatabase.getInt(1);
+            inTime = ticketFromDatabase.getTimestamp(4);
+            parkingType = ticketFromDatabase.getString(6);
+            available = ticketFromDatabase.getBoolean(7);
+        }
+
+        final Ticket ticket = ticketDAO.getTicket(vehicleRegistrationNumber);
+
+        assertThat(inTime.toLocalDateTime()).isEqualTo(ticket.getInTime());
+        assertThat(parkingNumber).isEqualTo(ticket.getParkingSpot().getId());
+        assertThat(available).isEqualTo(ticket.getParkingSpot().isAvailable());
+        assertThat(ParkingType.valueOf(parkingType)).isEqualTo(ticket.getParkingSpot().getParkingType());
+    }
+
+    @Test
     public void testParkingLotExit() throws SQLException, ClassNotFoundException {
         ParkingService parkingService = parkACarWithFakeTicket();
+        parkingService.processExitingVehicle();
+
+        final ResultSet resultSet = getTicketFromDatabase();
+
+        double price = 0;
+        Timestamp outTime = Timestamp.from(Instant.MIN);
+        if (resultSet.next()) {
+            price = resultSet.getDouble(3);
+            outTime = resultSet.getTimestamp(5);
+        }
+
+        Ticket ticket = ticketDAO.getTicket(vehicleRegistrationNumber);
+
+        assertThat(price).isEqualTo(ticket.getPrice());
+        assertThat(outTime.toLocalDateTime()).isEqualTo(ticket.getOutTime());
+    }
+
+    @Test
+    public void testParkingLotExitRecurrentUser() throws SQLException, ClassNotFoundException {
+        ParkingService parkingService = parkACarWithFakeTicket();
+        parkingService.processExitingVehicle();
+        parkingService = parkACarWithFakeTicket();
         parkingService.processExitingVehicle();
 
         final ResultSet resultSet = getTicketFromDatabase();
