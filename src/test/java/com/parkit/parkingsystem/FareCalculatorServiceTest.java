@@ -34,12 +34,30 @@ public class FareCalculatorServiceTest {
     }
 
     @Test
-    public void calculateFareBike(){
+    public void calculateFareBike() {
         Ticket ticket = setTicket(60, ParkingType.BIKE);
 
         fareCalculatorService.calculateFare(ticket, false);
 
         assertThat(ticket.getPrice()).isEqualTo(1.0);
+    }
+
+    @Test
+    public void calculateFareCarThirtyMinutes() {
+        ticket = setTicket(30, ParkingType.CAR);
+
+        fareCalculatorService.calculateFare(ticket, false);
+
+        assertThat(ticket.getPrice()).isEqualTo(0.0);
+    }
+
+    @Test
+    public void calculateFareBikeThirtyMinutes() {
+        Ticket ticket = setTicket(30, ParkingType.BIKE);
+
+        fareCalculatorService.calculateFare(ticket, false);
+
+        assertThat(ticket.getPrice()).isEqualTo(0.0);
     }
 
     @Test
