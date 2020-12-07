@@ -8,6 +8,7 @@ import java.time.Duration;
 public class FareCalculatorService {
 
     public static final double MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER = 0.95;
+    public static final double THIRTY_MINUTES = 0.5;
 
     public void calculateFare(Ticket ticket, boolean recurrentUser) {
         if ((ticket.getOutTime() == null) || (ticket.getOutTime().isBefore(ticket.getInTime()))) {
@@ -26,6 +27,9 @@ public class FareCalculatorService {
                 if (recurrentUser) {
                     price *= MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER;
                 }
+                if (parkingTimeInHours <= THIRTY_MINUTES) {
+                    price = 0.0;
+                }
                 final double ceilPrice = Math.ceil(price * 100) / 100;
                 ticket.setPrice(ceilPrice);
                 break;
@@ -34,6 +38,9 @@ public class FareCalculatorService {
                 double price = Fare.BIKE_RATE_PER_HOUR * parkingTimeInHours;
                 if (recurrentUser) {
                     price *= MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER;
+                }
+                if (parkingTimeInHours <= THIRTY_MINUTES) {
+                    price = 0.0;
                 }
                 final double ceilPrice = Math.ceil(price * 100) / 100;
                 ticket.setPrice(ceilPrice);
