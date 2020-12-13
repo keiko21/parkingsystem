@@ -5,28 +5,54 @@ import com.parkit.parkingsystem.constants.DBConstants;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
+import static com.parkit.parkingsystem.config.DataBaseConfig.setDatabaseValues;
+
+
+/**
+ * Manage a ticket related to a parking.
+ */
 public class TicketDAO {
+    /**
+     * The Data base configuration.
+     */
+    private final DataBaseConfig dataBaseConfig;
 
-    private static final Logger logger = LogManager.getLogger("TicketDAO");
+    /**
+     * Instantiates a new Ticket dao.
+     *
+     * @param pDataBaseConfig the data base configuration
+     */
+    public TicketDAO(final DataBaseConfig pDataBaseConfig) {
+        this.dataBaseConfig = pDataBaseConfig;
+    }
 
-    public DataBaseConfig dataBaseConfig = new DataBaseConfig();
-
-    public boolean checkRecurrentUser(String vehicleRegNumber) {
+    /**
+     * Check if the user is a recurrent one.
+     *
+     * @param vehicleRegNumber the vehicle registration number
+     * @return if is a recurrent user or not
+     */
+    public boolean checkRecurrentUser(final String vehicleRegNumber) {
         Connection con;
         int userNumberRecurrences = 0;
 
         try {
             con = dataBaseConfig.getConnection();
-            PreparedStatement ps = con.prepareStatement(DBConstants.GET_USER_RECURRENCES);
-            ps.setString(1, vehicleRegNumber);
+            PreparedStatement ps =
+                    con.prepareStatement(DBConstants.GET_USER_RECURRENCES);
+            Object[] databaseValues = {vehicleRegNumber};
+            setDatabaseValues(ps, databaseValues);
             ResultSet resultSet = ps.executeQuery();
             if (resultSet.next()) {
-                userNumberRecurrences = resultSet.getInt(1);
+                userNumberRecurrences = resultSet.getInt(
+                        DBConstants.COUNT_AVAILABLE_PARKING_COLUMN_LABEL);
             }
             dataBaseConfig.closeResultSet(resultSet);
             dataBaseConfig.closePreparedStatement(ps);
@@ -38,42 +64,69 @@ public class TicketDAO {
         return userNumberRecurrences > 0;
     }
 
-    public void saveTicket(Ticket ticket) {
+    /**
+     * Save a ticket.
+     *
+     * @param ticket the ticket to save
+     */
+    public void saveTicket(final Ticket ticket) {
         Connection con;
         try {
             con = dataBaseConfig.getConnection();
-            PreparedStatement ps = con.prepareStatement(DBConstants.SAVE_TICKET);
-            ps.setInt(1, ticket.getParkingSpot().getId());
-            ps.setString(2, ticket.getVehicleRegNumber());
-            ps.setDouble(3, ticket.getPrice());
-            ps.setTimestamp(4, Timestamp.valueOf(ticket.getInTime()));
-            ps.setTimestamp(5, (ticket.getOutTime() == null) ? null : (Timestamp.valueOf(ticket.getOutTime())));
+            PreparedStatement ps =
+                    con.prepareStatement(DBConstants.SAVE_TICKET);
+            Object[] databaseValues = {
+                    ticket.getParkingSpot().getId(),
+                    ticket.getVehicleRegNumber(),
+                    ticket.getPrice(),
+                    Timestamp.valueOf(ticket.getInTime()),
+                    (ticket.getOutTime() == null)
+                            ? null : (Timestamp.valueOf(ticket.getOutTime()))
+            };
+            setDatabaseValues(ps, databaseValues);
             ps.execute();
             dataBaseConfig.closePreparedStatement(ps);
             dataBaseConfig.closeConnection(con);
-        } catch (SQLException | ClassNotFoundException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException | ClassNotFoundException throwable) {
+            throwable.printStackTrace();
         }
     }
 
-    public Ticket getTicket(String vehicleRegNumber) {
+    /**
+     * Gets a ticket.
+     *
+     * @param vehicleRegNumber the vehicle registration number
+     * @return the ticket
+     */
+    public Ticket getTicket(final String vehicleRegNumber) {
         Connection con;
         Ticket ticket = null;
         try {
             con = dataBaseConfig.getConnection();
             PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET);
-            //ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME)
-            ps.setString(1, vehicleRegNumber);
+            Object[] databaseValues = {vehicleRegNumber};
+            setDatabaseValues(ps, databaseValues);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 ticket = new Ticket();
-                ParkingSpot parkingSpot = new ParkingSpot(rs.getInt(1), ParkingType.valueOf(rs.getString(6)), false);
+                ParkingSpot parkingSpot = new ParkingSpot(
+                        rs.getInt(
+                                DBConstants.TICKET_PARKING_NUMBER_COLUMN_LABEL),
+                        ParkingType.valueOf(
+                                rs.getString(
+                                        DBConstants.PARKING_TYPE_COLUMN_LABEL)),
+                        false);
                 ticket.setParkingSpot(parkingSpot);
-                ticket.setId(rs.getInt(2));
+                ticket.setId(rs.getInt(DBConstants.TICKET_ID_COLUMN_LABEL));
                 ticket.setVehicleRegNumber(vehicleRegNumber);
-                ticket.setPrice(rs.getDouble(3));
-                ticket.setInTime(rs.getTimestamp(4).toLocalDateTime());
-                final Timestamp outTime = rs.getTimestamp(5);
+                ticket.setPrice(rs.getDouble(
+                        DBConstants.TICKET_PRICE_COLUMN_LABEL));
+                ticket.setInTime(rs.getTimestamp(
+                        DBConstants.TICKET_IN_TIME_COLUMN_LABEL)
+                        .toLocalDateTime());
+                final Timestamp outTime
+                        = rs.getTimestamp(
+                        DBConstants.TICKET_OUT_TIME_COLUMN_LABEL);
                 if (outTime != null) {
                     ticket.setOutTime(outTime.toLocalDateTime());
                 }
@@ -87,20 +140,30 @@ public class TicketDAO {
         return ticket;
     }
 
-    public boolean updateTicket(Ticket ticket) {
+    /**
+     * Update a ticket.
+     *
+     * @param ticket the ticket to update
+     * @return if the ticket is updated or not
+     */
+    public boolean updateTicket(final Ticket ticket) {
         Connection con;
         try {
             con = dataBaseConfig.getConnection();
-            PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_TICKET);
-            ps.setDouble(1, ticket.getPrice());
-            ps.setTimestamp(2, Timestamp.valueOf(ticket.getOutTime()));
-            ps.setInt(3, ticket.getId());
+            PreparedStatement ps =
+                    con.prepareStatement(DBConstants.UPDATE_TICKET);
+            Object[] databaseValues = {
+                    ticket.getPrice(),
+                    Timestamp.valueOf(ticket.getOutTime()),
+                    ticket.getId(),
+            };
+            setDatabaseValues(ps, databaseValues);
             ps.execute();
             dataBaseConfig.closePreparedStatement(ps);
             dataBaseConfig.closeConnection(con);
             return true;
-        } catch (SQLException | ClassNotFoundException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException | ClassNotFoundException throwable) {
+            throwable.printStackTrace();
         }
         return false;
     }

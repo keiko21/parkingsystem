@@ -2,49 +2,97 @@ package com.parkit.parkingsystem.model;
 
 import com.parkit.parkingsystem.constants.ParkingType;
 
+/**
+ * Contains all information relative to a parking spot.
+ */
 public class ParkingSpot {
-    private int number;
-    private ParkingType parkingType;
+    /**
+     * The parking spot number.
+     */
+    private final int number;
+    /**
+     * The Parking type.
+     */
+    private final ParkingType parkingType;
+    /**
+     * Is available parking spot.
+     */
     private boolean isAvailable;
 
-    public ParkingSpot(int number, ParkingType parkingType, boolean isAvailable) {
-        this.number = number;
-        this.parkingType = parkingType;
-        this.isAvailable = isAvailable;
+    /**
+     * Instantiates a new Parking spot.
+     *
+     * @param pNumber      the Number of a parking
+     * @param pParkingType the parking type
+     * @param pIsAvailable availability of a parking spot
+     */
+    public ParkingSpot(final int pNumber,
+                       final ParkingType pParkingType,
+                       final boolean pIsAvailable) {
+        this.number = pNumber;
+        this.parkingType = pParkingType;
+        this.isAvailable = pIsAvailable;
     }
 
+    /**
+     * Gets the number of a parking.
+     *
+     * @return the id of a parking
+     */
     public int getId() {
         return number;
     }
 
-    public void setId(int number) {
-        this.number = number;
-    }
-
+    /**
+     * Gets parking type.
+     *
+     * @return the parking type
+     */
     public ParkingType getParkingType() {
         return parkingType;
     }
 
-    public void setParkingType(ParkingType parkingType) {
-        this.parkingType = parkingType;
-    }
-
+    /**
+     * Is available parking spot.
+     *
+     * @return if is available or not
+     */
     public boolean isAvailable() {
         return isAvailable;
     }
 
-    public void setAvailable(boolean available) {
+    /**
+     * Sets availability of a parking spot.
+     *
+     * @param available if is available or not
+     */
+    public void setAvailable(final boolean available) {
         isAvailable = available;
     }
 
+    /**
+     * Compare equality between parking spot number.
+     *
+     * @param o object to compare
+     * @return if equals or not
+     */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ParkingSpot that = (ParkingSpot) o;
         return number == that.number;
     }
 
+    /**
+     * Get parking spot number to hashCode.
+     *
+     * @return parking spot number
+     */
     @Override
     public int hashCode() {
         return number;

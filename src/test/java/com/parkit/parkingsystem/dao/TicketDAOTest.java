@@ -27,8 +27,7 @@ class TicketDAOTest {
     static void setUp() {
         dataBaseTestConfig = new DataBaseTestConfig();
         dataBasePrepareService = new DataBasePrepareService();
-        ticketDAO = new TicketDAO();
-        ticketDAO.dataBaseConfig = dataBaseTestConfig;
+        ticketDAO = new TicketDAO(dataBaseTestConfig);
     }
 
     @BeforeEach
@@ -49,20 +48,28 @@ class TicketDAOTest {
         assertThat(ticketDAO.checkRecurrentUser(VEHICLE_REG_NUMBER)).isFalse();
     }
 
-    private void setParkingInDatabase() throws SQLException, ClassNotFoundException {
-        final PreparedStatement preparedStatement = dataBaseTestConfig.getConnection().prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
+    private void setParkingInDatabase() throws
+            SQLException, ClassNotFoundException {
+        final PreparedStatement preparedStatement
+                = dataBaseTestConfig.getConnection()
+                .prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
         preparedStatement.setBoolean(1, AVAILABLE);
         preparedStatement.setInt(2, PARKING_NUMBER);
         preparedStatement.execute();
     }
 
-    private void setTicketInDatabase() throws SQLException, ClassNotFoundException {
-        final PreparedStatement preparedStatement = dataBaseTestConfig.getConnection().prepareStatement(DBConstants.SAVE_TICKET);
+    private void setTicketInDatabase() throws
+            SQLException, ClassNotFoundException {
+        final PreparedStatement preparedStatement
+                = dataBaseTestConfig.getConnection()
+                .prepareStatement(DBConstants.SAVE_TICKET);
         preparedStatement.setInt(1, PARKING_NUMBER);
         preparedStatement.setString(2, VEHICLE_REG_NUMBER);
         preparedStatement.setDouble(3, PRICE);
-        preparedStatement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.of(2020, 1, 1, 0, 0, 0)));
-        preparedStatement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.of(2020, 1, 1, 1, 0, 0)));
+        preparedStatement.setTimestamp(4,
+                Timestamp.valueOf(LocalDateTime.of(2020, 1, 1, 0, 0, 0)));
+        preparedStatement.setTimestamp(5,
+                Timestamp.valueOf(LocalDateTime.of(2020, 1, 1, 1, 0, 0)));
         preparedStatement.execute();
     }
 }
