@@ -69,32 +69,4 @@ public class ParkingSpot {
     public void setAvailable(final boolean available) {
         isAvailable = available;
     }
-
-    /**
-     * Compare equality between parking spot number.
-     *
-     * @param o object to compare
-     * @return if equals or not
-     */
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ParkingSpot that = (ParkingSpot) o;
-        return number == that.number;
-    }
-
-    /**
-     * Get parking spot number to hashCode.
-     *
-     * @return parking spot number
-     */
-    @Override
-    public int hashCode() {
-        return number;
-    }
 }

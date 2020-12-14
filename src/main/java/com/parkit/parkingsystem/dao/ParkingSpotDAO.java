@@ -55,9 +55,9 @@ public class ParkingSpotDAO {
             };
             setDatabaseValues(ps, databaseValues);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                result = rs.getInt(DBConstants.MIN_PARKING_NUMBER_COLUMN_LABEL);
-            }
+            rs.next();
+            result = rs.getInt(DBConstants.MIN_PARKING_NUMBER_COLUMN_LABEL);
+
             dataBaseConfig.closePreparedStatement(ps);
             dataBaseConfig.closeResultSet(rs);
             dataBaseConfig.closeConnection(con);

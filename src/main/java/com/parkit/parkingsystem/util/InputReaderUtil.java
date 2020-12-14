@@ -3,7 +3,6 @@ package com.parkit.parkingsystem.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
@@ -14,13 +13,21 @@ public class InputReaderUtil {
     /**
      * The scanner constant.
      */
-    private static final Scanner SCANNER
-            = new Scanner(System.in, StandardCharsets.UTF_8.name());
+    private final Scanner scanner;
     /**
      * Logger of Input Reader Util.
      */
     private static final Logger LOGGER =
             LogManager.getLogger("InputReaderUtil");
+
+    /**
+     * Instantiates a new Input reader util.
+     *
+     * @param pScanner the p scanner
+     */
+    public InputReaderUtil(final Scanner pScanner) {
+        scanner = pScanner;
+    }
 
     /**
      * Read user selection.
@@ -29,7 +36,7 @@ public class InputReaderUtil {
      */
     public int readSelection() {
         try {
-            return Integer.parseInt(SCANNER.nextLine());
+            return Integer.parseInt(scanner.nextLine());
         } catch (Exception e) {
             LOGGER.error("Error while reading user input from Shell", e);
             System.out.println("Error reading input. "
@@ -45,7 +52,7 @@ public class InputReaderUtil {
      */
     public String readVehicleRegistrationNumber() {
         try {
-            String vehicleRegNumber = SCANNER.nextLine();
+            String vehicleRegNumber = scanner.nextLine();
             if (vehicleRegNumber == null
                     || vehicleRegNumber.trim().length() == 0) {
                 throw new IllegalArgumentException("Invalid input provided");

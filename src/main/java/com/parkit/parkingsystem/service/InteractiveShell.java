@@ -1,16 +1,12 @@
 package com.parkit.parkingsystem.service;
 
-import com.parkit.parkingsystem.config.DataBaseConfig;
-import com.parkit.parkingsystem.dao.ParkingSpotDAO;
-import com.parkit.parkingsystem.dao.TicketDAO;
-import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Interactive shell where user can see and interact.
  */
-public final class InteractiveShell {
+public class InteractiveShell {
 
     /**
      * The constant OPTION_ONE.
@@ -30,30 +26,34 @@ public final class InteractiveShell {
     private static final Logger LOGGER =
             LogManager.getLogger("InteractiveShell");
 
+
+    /**
+     * The constant parkingService.
+     */
+    private final ParkingService parkingService;
+
     /**
      * Instantiates a new Interactive shell.
+     *
+     * @param pParkingService the p parking service
      */
-    private InteractiveShell() {
+    public InteractiveShell(final ParkingService pParkingService) {
+        parkingService = pParkingService;
     }
 
     /**
      * Load interface of the interactive shell.
      */
-    public static void loadInterface() {
+    public void loadInterface() {
         LOGGER.info("App initialized!!!");
         System.out.println("Welcome to Parking System!");
 
         boolean continueApp = true;
-        DataBaseConfig dataBaseConfig = new DataBaseConfig();
-        InputReaderUtil inputReaderUtil = new InputReaderUtil();
-        ParkingSpotDAO parkingSpotDAO = new ParkingSpotDAO(dataBaseConfig);
-        TicketDAO ticketDAO = new TicketDAO(dataBaseConfig);
-        ParkingService parkingService =
-                new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+
 
         while (continueApp) {
             loadMenu();
-            int option = inputReaderUtil.readSelection();
+            int option = parkingService.getInputReaderUtil().readSelection();
             switch (option) {
                 case OPTION_ONE:
                     parkingService.processIncomingVehicle();

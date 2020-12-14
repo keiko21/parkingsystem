@@ -35,6 +35,16 @@ public class ParkingService {
      * The Parking spot dao.
      */
     private final ParkingSpotDAO parkingSpotDAO;
+
+    /**
+     * Gets input reader util.
+     *
+     * @return the input reader util
+     */
+    public InputReaderUtil getInputReaderUtil() {
+        return inputReaderUtil;
+    }
+
     /**
      * The Ticket dao.
      */
