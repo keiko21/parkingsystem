@@ -707,7 +707,7 @@ window['_pr_isIE6'] = function () {
                 var name2 = matches[j].match(pr_tagNameRe);
                 if (name2 && name2[2] === name) {
                   if (name2[1] === '/') {
-                    if (--depth === 0) { break; }
+                    if (--depth === 0) { break end_tag_loop; }
                   } else {
                     ++depth;
                   }
