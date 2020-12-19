@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TicketDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">parking-system</a> &gt; <a href="index.source.html" class="el_package">com.parkit.parkingsystem.dao</a> &gt; <span class="el_source">TicketDAO.java</span></div><h1>TicketDAO.java</h1><pre class="source lang-java linenums">package com.parkit.parkingsystem.dao;
+
+import com.parkit.parkingsystem.config.DataBaseConfig;
+import com.parkit.parkingsystem.constants.DBConstants;
+import com.parkit.parkingsystem.constants.ParkingType;
+import com.parkit.parkingsystem.model.ParkingSpot;
+import com.parkit.parkingsystem.model.Ticket;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+
+import static com.parkit.parkingsystem.config.DataBaseConfig.setDatabaseValues;
+
+
+/**
+ * Manage a ticket related to a parking.
+ */
+public class TicketDAO {
+    /**
+     * The Data base configuration.
+     */
+    private final DataBaseConfig dataBaseConfig;
+
+    /**
+     * Instantiates a new Ticket dao.
+     *
+     * @param pDataBaseConfig the data base configuration
+     */
+<span class="fc" id="L32">    public TicketDAO(final DataBaseConfig pDataBaseConfig) {</span>
+<span class="fc" id="L33">        this.dataBaseConfig = pDataBaseConfig;</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * Check if the user is a recurrent one.
+     *
+     * @param vehicleRegNumber the vehicle registration number
+     * @return if is a recurrent user or not
+     */
+    public boolean checkRecurrentUser(final String vehicleRegNumber) {
+        Connection con;
+<span class="fc" id="L44">        int userNumberRecurrences = 0;</span>
+
+        try {
+<span class="fc" id="L47">            con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L48">            PreparedStatement ps =</span>
+<span class="fc" id="L49">                    con.prepareStatement(DBConstants.GET_USER_RECURRENCES);</span>
+<span class="fc" id="L50">            Object[] databaseValues = {vehicleRegNumber};</span>
+<span class="fc" id="L51">            setDatabaseValues(ps, databaseValues);</span>
+<span class="fc" id="L52">            ResultSet resultSet = ps.executeQuery();</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">            if (resultSet.next()) {</span>
+<span class="fc" id="L54">                userNumberRecurrences = resultSet.getInt(</span>
+                        DBConstants.COUNT_AVAILABLE_PARKING_COLUMN_LABEL);
+            }
+<span class="fc" id="L57">            dataBaseConfig.closeResultSet(resultSet);</span>
+<span class="fc" id="L58">            dataBaseConfig.closePreparedStatement(ps);</span>
+<span class="fc" id="L59">            dataBaseConfig.closeConnection(con);</span>
+<span class="nc" id="L60">        } catch (SQLException | ClassNotFoundException throwables) {</span>
+<span class="nc" id="L61">            throwables.printStackTrace();</span>
+<span class="fc" id="L62">        }</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        return userNumberRecurrences &gt; 0;</span>
+    }
+
+    /**
+     * Save a ticket.
+     *
+     * @param ticket the ticket to save
+     */
+    public void saveTicket(final Ticket ticket) {
+        Connection con;
+        try {
+<span class="fc" id="L75">            con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L76">            PreparedStatement ps =</span>
+<span class="fc" id="L77">                    con.prepareStatement(DBConstants.SAVE_TICKET);</span>
+<span class="fc" id="L78">            Object[] databaseValues = {</span>
+<span class="fc" id="L79">                    ticket.getParkingSpot().getId(),</span>
+<span class="fc" id="L80">                    ticket.getVehicleRegNumber(),</span>
+<span class="fc" id="L81">                    ticket.getPrice(),</span>
+<span class="fc" id="L82">                    Timestamp.valueOf(ticket.getInTime()),</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">                    (ticket.getOutTime() == null)</span>
+<span class="pc" id="L84">                            ? null : (Timestamp.valueOf(ticket.getOutTime()))</span>
+            };
+<span class="fc" id="L86">            setDatabaseValues(ps, databaseValues);</span>
+<span class="fc" id="L87">            ps.execute();</span>
+<span class="fc" id="L88">            dataBaseConfig.closePreparedStatement(ps);</span>
+<span class="fc" id="L89">            dataBaseConfig.closeConnection(con);</span>
+<span class="nc" id="L90">        } catch (SQLException | ClassNotFoundException throwable) {</span>
+<span class="nc" id="L91">            throwable.printStackTrace();</span>
+<span class="fc" id="L92">        }</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Gets a ticket.
+     *
+     * @param vehicleRegNumber the vehicle registration number
+     * @return the ticket
+     */
+    public Ticket getTicket(final String vehicleRegNumber) {
+        Connection con;
+<span class="fc" id="L103">        Ticket ticket = null;</span>
+        try {
+<span class="fc" id="L105">            con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L106">            PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET);</span>
+<span class="fc" id="L107">            Object[] databaseValues = {vehicleRegNumber};</span>
+<span class="fc" id="L108">            setDatabaseValues(ps, databaseValues);</span>
+<span class="fc" id="L109">            ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L111">                ticket = new Ticket();</span>
+<span class="fc" id="L112">                ParkingSpot parkingSpot = new ParkingSpot(</span>
+<span class="fc" id="L113">                        rs.getInt(</span>
+                                DBConstants.TICKET_PARKING_NUMBER_COLUMN_LABEL),
+<span class="fc" id="L115">                        ParkingType.valueOf(</span>
+<span class="fc" id="L116">                                rs.getString(</span>
+                                        DBConstants.PARKING_TYPE_COLUMN_LABEL)),
+                        false);
+<span class="fc" id="L119">                ticket.setParkingSpot(parkingSpot);</span>
+<span class="fc" id="L120">                ticket.setId(rs.getInt(DBConstants.TICKET_ID_COLUMN_LABEL));</span>
+<span class="fc" id="L121">                ticket.setVehicleRegNumber(vehicleRegNumber);</span>
+<span class="fc" id="L122">                ticket.setPrice(rs.getDouble(</span>
+                        DBConstants.TICKET_PRICE_COLUMN_LABEL));
+<span class="fc" id="L124">                ticket.setInTime(rs.getTimestamp(</span>
+                        DBConstants.TICKET_IN_TIME_COLUMN_LABEL)
+<span class="fc" id="L126">                        .toLocalDateTime());</span>
+<span class="fc" id="L127">                final Timestamp outTime</span>
+<span class="fc" id="L128">                        = rs.getTimestamp(</span>
+                        DBConstants.TICKET_OUT_TIME_COLUMN_LABEL);
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">                if (outTime != null) {</span>
+<span class="fc" id="L131">                    ticket.setOutTime(outTime.toLocalDateTime());</span>
+                }
+            }
+<span class="fc" id="L134">            dataBaseConfig.closeResultSet(rs);</span>
+<span class="fc" id="L135">            dataBaseConfig.closePreparedStatement(ps);</span>
+<span class="fc" id="L136">            dataBaseConfig.closeConnection(con);</span>
+<span class="nc" id="L137">        } catch (SQLException | ClassNotFoundException throwables) {</span>
+<span class="nc" id="L138">            throwables.printStackTrace();</span>
+<span class="fc" id="L139">        }</span>
+<span class="fc" id="L140">        return ticket;</span>
+    }
+
+    /**
+     * Update a ticket.
+     *
+     * @param ticket the ticket to update
+     * @return if the ticket is updated or not
+     */
+    public boolean updateTicket(final Ticket ticket) {
+        Connection con;
+        try {
+<span class="fc" id="L152">            con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L153">            PreparedStatement ps =</span>
+<span class="fc" id="L154">                    con.prepareStatement(DBConstants.UPDATE_TICKET);</span>
+<span class="fc" id="L155">            Object[] databaseValues = {</span>
+<span class="fc" id="L156">                    ticket.getPrice(),</span>
+<span class="fc" id="L157">                    Timestamp.valueOf(ticket.getOutTime()),</span>
+<span class="fc" id="L158">                    ticket.getId(),</span>
+            };
+<span class="fc" id="L160">            setDatabaseValues(ps, databaseValues);</span>
+<span class="fc" id="L161">            ps.execute();</span>
+<span class="fc" id="L162">            dataBaseConfig.closePreparedStatement(ps);</span>
+<span class="fc" id="L163">            dataBaseConfig.closeConnection(con);</span>
+<span class="fc" id="L164">            return true;</span>
+<span class="nc" id="L165">        } catch (SQLException | ClassNotFoundException throwable) {</span>
+<span class="nc" id="L166">            throwable.printStackTrace();</span>
+        }
+<span class="nc" id="L168">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

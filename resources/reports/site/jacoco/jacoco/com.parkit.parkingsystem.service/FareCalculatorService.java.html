@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FareCalculatorService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">parking-system</a> &gt; <a href="index.source.html" class="el_package">com.parkit.parkingsystem.service</a> &gt; <span class="el_source">FareCalculatorService.java</span></div><h1>FareCalculatorService.java</h1><pre class="source lang-java linenums">package com.parkit.parkingsystem.service;
+
+import com.parkit.parkingsystem.constants.Fare;
+import com.parkit.parkingsystem.model.Ticket;
+
+import java.time.Duration;
+
+/**
+ * The Fare calculator service that calculate fare for a parking.
+ */
+<span class="fc" id="L11">public class FareCalculatorService {</span>
+
+    /**
+     * Price for thirty minutes constant.
+     */
+    public static final double PRICE_FOR_THIRTY_MINUTES = 0.0;
+    /**
+     * The constant ONE_HUNDRED.
+     */
+    public static final int ONE_HUNDRED = 100;
+    /**
+     * Multiplier of price discount of recurrent user constant.
+     */
+    private static final double
+            MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER = 0.95;
+    /**
+     * Thirty minutes constant.
+     */
+    private static final double THIRTY_MINUTES = 0.5;
+
+    /**
+     * Calculate fare from a ticket.
+     *
+     * @param ticket        the ticket
+     * @param recurrentUser to know if the user is a recurrent one
+     */
+    public void calculateFare(
+            final Ticket ticket,
+            final boolean recurrentUser) {
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if ((ticket.getOutTime() == null)</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">                || (ticket.getOutTime().isBefore(ticket.getInTime()))) {</span>
+<span class="fc" id="L42">            String exceptionMessage = &quot;Out time provided is incorrect.&quot;;</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">            if (ticket.getOutTime() != null) {</span>
+<span class="fc" id="L44">                exceptionMessage = &quot;Out time provided is incorrect:&quot;</span>
+<span class="fc" id="L45">                        + ticket.getOutTime().toString();</span>
+            }
+<span class="fc" id="L47">            throw new IllegalArgumentException(exceptionMessage);</span>
+        }
+
+<span class="fc" id="L50">        final double parkingTimeInHours = (Duration.between(ticket.getInTime(),</span>
+<span class="fc" id="L51">                ticket.getOutTime()).toMinutes() / 60.0);</span>
+
+<span class="pc bpc" id="L53" title="1 of 3 branches missed.">        switch (ticket.getParkingSpot().getParkingType()) {</span>
+            case CAR:
+<span class="fc" id="L55">                double carCeilPrice = getCeilPrice(</span>
+                        recurrentUser,
+                        parkingTimeInHours,
+                        Fare.CAR_RATE_PER_HOUR);
+<span class="fc" id="L59">                ticket.setPrice(carCeilPrice);</span>
+<span class="fc" id="L60">                break;</span>
+            case BIKE:
+<span class="fc" id="L62">                double bikeCeilPrice = getCeilPrice(</span>
+                        recurrentUser,
+                        parkingTimeInHours,
+                        Fare.BIKE_RATE_PER_HOUR);
+<span class="fc" id="L66">                ticket.setPrice(bikeCeilPrice);</span>
+<span class="fc" id="L67">                break;</span>
+            default:
+<span class="nc" id="L69">                throw new IllegalArgumentException(&quot;Unkown Parking Type&quot;);</span>
+        }
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Gets ceil price for parking.
+     *
+     * @param recurrentUser      if recurrent user
+     * @param parkingTimeInHours the parking time in hours
+     * @param carRatePerHour     the car rate per hour
+     * @return the ceil price
+     */
+    private double getCeilPrice(final boolean recurrentUser,
+                                final double parkingTimeInHours,
+                                final double carRatePerHour) {
+<span class="fc" id="L84">        double price = PRICE_FOR_THIRTY_MINUTES;</span>
+<span class="fc bfc" id="L85" title="All 4 branches covered.">        if (recurrentUser &amp;&amp; parkingTimeInHours &gt; THIRTY_MINUTES) {</span>
+<span class="fc" id="L86">            price = carRatePerHour</span>
+                    * parkingTimeInHours
+                    * MULTIPLIER_OF_PRICE_DISCOUNT_RECURRENT_USER;
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        } else if (parkingTimeInHours &gt; THIRTY_MINUTES) {</span>
+<span class="fc" id="L90">            price = carRatePerHour * parkingTimeInHours;</span>
+        }
+<span class="fc" id="L92">        return Math.ceil(price * ONE_HUNDRED) / ONE_HUNDRED;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
