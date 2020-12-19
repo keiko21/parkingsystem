@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="8.29">
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\App.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\config\DataBaseConfig.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\config\package-info.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\constants\DBConstants.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\constants\Fare.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\constants\package-info.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\constants\ParkingType.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\dao\package-info.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\dao\ParkingSpotDAO.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\dao\TicketDAO.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\model\package-info.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\model\ParkingSpot.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\model\Ticket.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\package-info.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\service\FareCalculatorService.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\service\InteractiveShell.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\service\package-info.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\service\ParkingService.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\util\InputReaderUtil.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\java\com\parkit\parkingsystem\util\package-info.java">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\resources\database.properties">
+</file>
+<file name="E:\OpenClassrooms\Projet 4\parkingsystem\src\main\resources\log4j.properties">
+</file>
+</checkstyle>

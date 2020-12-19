@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html lang="fr" xmlns="http://www.w3.org/1999/xhtml"><head><meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/><link href="../jacoco-resources/report.css" rel="stylesheet" type="text/css"/><link href="../jacoco-resources/report.gif" rel="shortcut icon" type="image/gif"/><title>DataBaseConfig.java</title><link href="../jacoco-resources/prettify.css" rel="stylesheet" type="text/css"/><script src="../jacoco-resources/prettify.js" type="text/javascript"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a class="el_session" href="../jacoco-sessions.html">Sessions</a></span><a class="el_report" href="../index.html">parking-system</a> &gt; <a class="el_package" href="index.source.html">com.parkit.parkingsystem.config</a> &gt; <span class="el_source">DataBaseConfig.java</span></div><h1>DataBaseConfig.java</h1><pre class="source lang-java linenums">package com.parkit.parkingsystem.config;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.util.Properties;
+
+/**
+ * «
+ * Database configurator.
+ */
+<span class="fc" id="L19">public class DataBaseConfig {</span>
+    /**
+     * Logger of database configuration.
+     *
+     * @see Logger
+     */
+<span class="fc" id="L25">    private static final Logger LOGGER =</span>
+<span class="fc" id="L26">            LogManager.getLogger(&quot;DataBaseConfig&quot;);</span>
+
+    /**
+     * Properties path of the database.
+     */
+    private static final String PROPERTIES_PATH =
+            &quot;src/main/resources/database.properties&quot;;
+    /**
+     * The Url from properties file.
+     */
+    private String url;
+    /**
+     * The User from properties file.
+     */
+    private String user;
+    /**
+     * The Password from properties file.
+     */
+    private String password;
+
+    /**
+     * Sets database values.
+     *
+     * @param preparedStatement the prepared statement
+     * @param values            the values
+     * @throws SQLException the sql exception
+     */
+    public static void setDatabaseValues(
+            final PreparedStatement preparedStatement,
+            final Object... values) throws SQLException {
+<span class="fc" id="L56">        for (byte parameterIndex = 0;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">             parameterIndex &lt; values.length;</span>
+<span class="fc" id="L58">             parameterIndex++) {</span>
+<span class="fc" id="L59">            preparedStatement</span>
+<span class="fc" id="L60">                    .setObject(parameterIndex + 1, values[parameterIndex]);</span>
+        }
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Gets connection to database.
+     *
+     * @return the connection to database
+     * @throws ClassNotFoundException the class not found exception
+     * @throws SQLException           the sql exception
+     */
+    public Connection getConnection()
+            throws ClassNotFoundException, SQLException {
+<span class="nc" id="L73">        LOGGER.info(&quot;Create DB connection&quot;);</span>
+<span class="nc" id="L74">        Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;);</span>
+
+<span class="nc" id="L76">        try (FileInputStream fileInputStream =</span>
+                     new FileInputStream(PROPERTIES_PATH)) {
+<span class="nc" id="L78">            Properties properties = new Properties();</span>
+<span class="nc" id="L79">            properties.load(fileInputStream);</span>
+
+<span class="nc" id="L81">            url = properties.getProperty(&quot;url&quot;);</span>
+<span class="nc" id="L82">            user = properties.getProperty(&quot;user&quot;);</span>
+<span class="nc" id="L83">            password = properties.getProperty(&quot;password&quot;);</span>
+
+<span class="nc" id="L85">        } catch (IOException e) {</span>
+<span class="nc" id="L86">            LOGGER.error(&quot;Cannot write into&quot; + PROPERTIES_PATH, e);</span>
+<span class="nc" id="L87">        }</span>
+<span class="nc" id="L88">        return DriverManager.getConnection(url, user, password);</span>
+    }
+
+    /**
+     * Close database connection.
+     *
+     * @param con the connection
+     */
+    public void closeConnection(final Connection con) {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (con != null) {</span>
+            try {
+<span class="nc" id="L99">                con.close();</span>
+<span class="nc" id="L100">                LOGGER.info(&quot;Closing DB connection&quot;);</span>
+<span class="nc" id="L101">            } catch (SQLException e) {</span>
+<span class="nc" id="L102">                LOGGER.error(&quot;Error while closing connection&quot;, e);</span>
+<span class="nc" id="L103">            }</span>
+        }
+<span class="nc" id="L105">    }</span>
+
+    /**
+     * Close prepared statement.
+     *
+     * @param ps the prepared statement
+     */
+    public void closePreparedStatement(final PreparedStatement ps) {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (ps != null) {</span>
+            try {
+<span class="nc" id="L115">                ps.close();</span>
+<span class="nc" id="L116">                LOGGER.info(&quot;Closing Prepared Statement&quot;);</span>
+<span class="nc" id="L117">            } catch (SQLException e) {</span>
+<span class="nc" id="L118">                LOGGER.error(&quot;Error while closing prepared statement&quot;, e);</span>
+<span class="nc" id="L119">            }</span>
+        }
+<span class="nc" id="L121">    }</span>
+
+    /**
+     * Close result set.
+     *
+     * @param rs the result set
+     */
+    public void closeResultSet(final ResultSet rs) {
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (rs != null) {</span>
+            try {
+<span class="nc" id="L131">                rs.close();</span>
+<span class="nc" id="L132">                LOGGER.info(&quot;Closing Result Set&quot;);</span>
+<span class="nc" id="L133">            } catch (SQLException e) {</span>
+<span class="nc" id="L134">                LOGGER.error(&quot;Error while closing result set&quot;, e);</span>
+<span class="nc" id="L135">            }</span>
+        }
+<span class="nc" id="L137">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
