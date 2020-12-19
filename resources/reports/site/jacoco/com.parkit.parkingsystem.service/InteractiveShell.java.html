@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InteractiveShell.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">parking-system</a> &gt; <a href="index.source.html" class="el_package">com.parkit.parkingsystem.service</a> &gt; <span class="el_source">InteractiveShell.java</span></div><h1>InteractiveShell.java</h1><pre class="source lang-java linenums">package com.parkit.parkingsystem.service;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Interactive shell where user can see and interact.
+ */
+public class InteractiveShell {
+
+    /**
+     * The constant OPTION_ONE.
+     */
+    public static final int OPTION_ONE = 1;
+    /**
+     * The constant OPTION_TWO.
+     */
+    public static final int OPTION_TWO = 2;
+    /**
+     * The constant OPTION_THREE.
+     */
+    public static final int OPTION_THREE = 3;
+    /**
+     * Logger of the Interactive Shell.
+     */
+<span class="fc" id="L26">    private static final Logger LOGGER =</span>
+<span class="fc" id="L27">            LogManager.getLogger(&quot;InteractiveShell&quot;);</span>
+
+
+    /**
+     * The constant parkingService.
+     */
+    private final ParkingService parkingService;
+
+    /**
+     * Instantiates a new Interactive shell.
+     *
+     * @param pParkingService the p parking service
+     */
+<span class="fc" id="L40">    public InteractiveShell(final ParkingService pParkingService) {</span>
+<span class="fc" id="L41">        parkingService = pParkingService;</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Load interface of the interactive shell.
+     */
+    public void loadInterface() {
+<span class="fc" id="L48">        LOGGER.info(&quot;App initialized!!!&quot;);</span>
+<span class="fc" id="L49">        System.out.println(&quot;Welcome to Parking System!&quot;);</span>
+
+<span class="fc" id="L51">        boolean continueApp = true;</span>
+
+
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        while (continueApp) {</span>
+<span class="fc" id="L55">            loadMenu();</span>
+<span class="fc" id="L56">            int option = parkingService.getInputReaderUtil().readSelection();</span>
+<span class="pc bpc" id="L57" title="1 of 4 branches missed.">            switch (option) {</span>
+                case OPTION_ONE:
+<span class="fc" id="L59">                    parkingService.processIncomingVehicle();</span>
+<span class="fc" id="L60">                    break;</span>
+                case OPTION_TWO:
+<span class="fc" id="L62">                    parkingService.processExitingVehicle();</span>
+<span class="fc" id="L63">                    break;</span>
+                case OPTION_THREE:
+<span class="fc" id="L65">                    System.out.println(&quot;Exiting from the system!&quot;);</span>
+<span class="fc" id="L66">                    continueApp = false;</span>
+<span class="fc" id="L67">                    break;</span>
+                default:
+<span class="nc" id="L69">                    System.out.println(</span>
+                            &quot;Unsupported option. Please enter a number &quot;
+                                    + &quot;corresponding to the provided menu&quot;);
+            }
+<span class="fc" id="L73">        }</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Load menu to user.
+     */
+    private static void loadMenu() {
+<span class="fc" id="L80">        System.out.println(&quot;Please select an option. &quot;</span>
+                + &quot;Simply enter the number to choose an action&quot;);
+<span class="fc" id="L82">        System.out.println(&quot;1 New Vehicle Entering - Allocate Parking Space&quot;);</span>
+<span class="fc" id="L83">        System.out.println(&quot;2 Vehicle Exiting - Generate Ticket Price&quot;);</span>
+<span class="fc" id="L84">        System.out.println(&quot;3 Shutdown System&quot;);</span>
+<span class="fc" id="L85">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

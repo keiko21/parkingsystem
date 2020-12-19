@@ -1,0 +1,26 @@
+#Sat Dec 19 14:25:29 EST 2020
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\service\\InteractiveShell.java=1607982132944
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\constants\\ParkingType.java=1607792975022
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\service\\ParkingService.java=1608400947843
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\util\\InputReaderUtil.java=1607982023592
+module-resource*?\:checkstyle-xpath-suppressions.xml=4DF90958DAE1C2AF704D9FE9A7064C219F491CAA
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\constants\\package-info.java=1607794595848
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\resources\\database.properties=1607883476020
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\model\\ParkingSpot.java=1607906469283
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\config\\DataBaseConfig.java=1607884103393
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\model\\package-info.java=1607794596270
+module-resource*?\:checkstyle-suppressions.xml=45873B2CEFB51FE5CD622D9D96E4DDB2D2470C88
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\util\\package-info.java=1607794595723
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\service\\FareCalculatorService.java=1607834150861
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\App.java=1607981927931
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\dao\\package-info.java=1607794596208
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\constants\\DBConstants.java=1607834151233
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\constants\\Fare.java=1607834151375
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\model\\Ticket.java=1607832326862
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\config\\package-info.java=1607795030977
+configuration*?=66852701DDC68F01D38B2A86FB910BF8D3568F02
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\dao\\ParkingSpotDAO.java=1607984090491
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\resources\\log4j.properties=1607833633765
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\package-info.java=1607794595911
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\service\\package-info.java=1607794596098
+E\:\\OpenClassrooms\\Projet\ 4\\parkingsystem\\src\\main\\java\\com\\parkit\\parkingsystem\\dao\\TicketDAO.java=1607834151211

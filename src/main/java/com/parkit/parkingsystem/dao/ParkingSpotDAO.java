@@ -10,50 +10,88 @@ import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
+import static com.parkit.parkingsystem.config.DataBaseConfig.setDatabaseValues;
+
+/**
+ * A parking spot manager.
+ */
 public class ParkingSpotDAO {
-    private static final Logger logger = LogManager.getLogger("ParkingSpotDAO");
+    /**
+     * Logger of parking spot DAO.
+     */
+    private static final Logger LOGGER = LogManager.getLogger("ParkingSpotDAO");
 
-    public DataBaseConfig dataBaseConfig = new DataBaseConfig();
+    /**
+     * The Data base configuration.
+     */
+    private final DataBaseConfig dataBaseConfig;
 
-    public int getNextAvailableSlot(ParkingType parkingType){
-        Connection con = null;
-        int result=-1;
+    /**
+     * Instantiates a new Parking spot dao.
+     *
+     * @param pDataBaseConfig the data base configuration
+     */
+    public ParkingSpotDAO(final DataBaseConfig pDataBaseConfig) {
+        this.dataBaseConfig = pDataBaseConfig;
+    }
+
+    /**
+     * Gets next available slot of a parking.
+     *
+     * @param parkingType the parking type
+     * @return the next available slot
+     */
+    public int getNextAvailableSlot(final ParkingType parkingType) {
+        Connection con;
+        int result = -1;
         try {
             con = dataBaseConfig.getConnection();
-            PreparedStatement ps = con.prepareStatement(DBConstants.GET_NEXT_PARKING_SPOT);
-            ps.setString(1, parkingType.toString());
+            PreparedStatement ps =
+                    con.prepareStatement(DBConstants.GET_NEXT_PARKING_SPOT);
+            Object[] databaseValues = {
+                    parkingType.toString()
+            };
+            setDatabaseValues(ps, databaseValues);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
-                result = rs.getInt(1);;
-            }
-            dataBaseConfig.closeResultSet(rs);
+            rs.next();
+            result = rs.getInt(DBConstants.MIN_PARKING_NUMBER_COLUMN_LABEL);
+
             dataBaseConfig.closePreparedStatement(ps);
-        }catch (Exception ex){
-            logger.error("Error fetching next available slot",ex);
-        }finally {
+            dataBaseConfig.closeResultSet(rs);
             dataBaseConfig.closeConnection(con);
+        } catch (SQLException | ClassNotFoundException e) {
+            LOGGER.error("Error fetching next available slot", e);
         }
         return result;
     }
 
-    public boolean updateParking(ParkingSpot parkingSpot){
-        //update the availability fo that parking slot
-        Connection con = null;
+    /**
+     * Update a parking spot.
+     *
+     * @param parkingSpot the parking spot
+     * @return if the parking spot is updated or not
+     */
+    public boolean updateParking(final ParkingSpot parkingSpot) {
+        Connection con;
+        int updateRowCount = -1;
         try {
             con = dataBaseConfig.getConnection();
-            PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
-            ps.setBoolean(1, parkingSpot.isAvailable());
-            ps.setInt(2, parkingSpot.getId());
-            int updateRowCount = ps.executeUpdate();
-            dataBaseConfig.closePreparedStatement(ps);
-            return (updateRowCount == 1);
-        }catch (Exception ex){
-            logger.error("Error updating parking info",ex);
-            return false;
-        }finally {
-            dataBaseConfig.closeConnection(con);
-        }
-    }
+            PreparedStatement ps =
+                    con.prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
+            Object[] databaseValues = {
+                    parkingSpot.isAvailable(),
+                    parkingSpot.getId()
+            };
+            setDatabaseValues(ps, databaseValues);
+            updateRowCount = ps.executeUpdate();
 
+            dataBaseConfig.closePreparedStatement(ps);
+            dataBaseConfig.closeConnection(con);
+        } catch (SQLException | ClassNotFoundException e) {
+            LOGGER.error("Error updating parking info", e);
+        }
+        return (updateRowCount == 1);
+    }
 }
