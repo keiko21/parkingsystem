@@ -3,19 +3,25 @@ package com.parkit.parkingsystem.service;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
-import com.parkit.parkingsystem.service.FareCalculatorService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class FareCalculatorServiceTest {
 
-    private static FareCalculatorService fareCalculatorService;
+    public static final int ONE_HOUR = 60;
+    public static final int ONE_DAY = 24 * 60;
+    public static final int THIRTY_MINUTES = 30;
+    public static final int FOURTY_FIVE_MINUTES = 45;
 
+    private FareCalculatorService fareCalculatorService;
     private Ticket ticket;
 
     @BeforeEach
@@ -24,101 +30,73 @@ public class FareCalculatorServiceTest {
         ticket = new Ticket();
     }
 
-    @Test
-    public void calculateFareCar(){
-        ticket = setTicket(60, ParkingType.CAR);
+    private static Stream<Arguments> calculateFareArguments() {
+        return Stream.of(
+                Arguments.of(ONE_HOUR, ParkingType.CAR, 1.5),
+                Arguments.of(ONE_HOUR, ParkingType.BIKE, 1.0),
+                Arguments.of(THIRTY_MINUTES, ParkingType.CAR, 0.0),
+                Arguments.of(THIRTY_MINUTES, ParkingType.BIKE, 0.0),
+                Arguments.of(FOURTY_FIVE_MINUTES, ParkingType.CAR, 1.13),
+                Arguments.of(FOURTY_FIVE_MINUTES, ParkingType.BIKE, 0.75),
+                Arguments.of(ONE_DAY, ParkingType.CAR, 36.0),
+                Arguments.of(ONE_DAY, ParkingType.BIKE, 24.0)
+        );
+    }
+
+    private static Stream<Arguments> throwExceptionWhenCalculatingFareArguments() {
+        return Stream.of(
+                Arguments.of(ONE_HOUR, null, NullPointerException.class),
+                Arguments.of(-ONE_HOUR, ParkingType.CAR, IllegalArgumentException.class),
+                Arguments.of(-ONE_HOUR, ParkingType.BIKE, IllegalArgumentException.class)
+        );
+    }
+
+    private static Stream<Arguments> calculateFareRecurrentUserArguments() {
+        return Stream.of(
+                Arguments.of(ONE_HOUR, ParkingType.CAR, 1.43),
+                Arguments.of(ONE_HOUR, ParkingType.BIKE, 0.95),
+                Arguments.of(THIRTY_MINUTES, ParkingType.CAR, 0.0),
+                Arguments.of(THIRTY_MINUTES, ParkingType.BIKE, 0.0),
+                Arguments.of(FOURTY_FIVE_MINUTES, ParkingType.CAR, 1.07),
+                Arguments.of(FOURTY_FIVE_MINUTES, ParkingType.BIKE, 0.72),
+                Arguments.of(ONE_DAY, ParkingType.CAR, 34.2),
+                Arguments.of(ONE_DAY, ParkingType.BIKE, 22.8)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("calculateFareArguments")
+    public void calculateFare(int parkingTimeInMinutes,
+                              ParkingType parkingType,
+                              double expectedPrice) {
+        ticket = setTicket(parkingTimeInMinutes, parkingType);
 
         fareCalculatorService.calculateFare(ticket, false);
 
-        assertThat(ticket.getPrice()).isEqualTo(1.5);
+        assertThat(ticket.getPrice()).isEqualTo(expectedPrice);
     }
 
-    @Test
-    public void calculateFareBike() {
-        Ticket ticket = setTicket(60, ParkingType.BIKE);
+    @ParameterizedTest
+    @MethodSource("throwExceptionWhenCalculatingFareArguments")
+    public void throwExceptionWhenCalculatingFare(int parkingTimeInMinutes,
+                                                  ParkingType parkingType,
+                                                  Class<Throwable> exceptionClass) {
+        ticket = setTicket(parkingTimeInMinutes, parkingType);
 
-        fareCalculatorService.calculateFare(ticket, false);
-
-        assertThat(ticket.getPrice()).isEqualTo(1.0);
-    }
-
-    @Test
-    public void calculateFareCarThirtyMinutes() {
-        ticket = setTicket(30, ParkingType.CAR);
-
-        fareCalculatorService.calculateFare(ticket, false);
-
-        assertThat(ticket.getPrice()).isEqualTo(0.0);
-    }
-
-    @Test
-    public void calculateFareBikeThirtyMinutes() {
-        Ticket ticket = setTicket(30, ParkingType.BIKE);
-
-        fareCalculatorService.calculateFare(ticket, false);
-
-        assertThat(ticket.getPrice()).isEqualTo(0.0);
-    }
-
-    @Test
-    public void calculateFareUnkownType() {
-        Ticket ticket = setTicket(60, null);
-
-        assertThatExceptionOfType(NullPointerException.class)
+        assertThatExceptionOfType(exceptionClass)
                 .isThrownBy(() -> fareCalculatorService.calculateFare(ticket, false));
     }
 
-    @Test
-    public void calculateFareBikeWithFutureInTime() {
-        Ticket ticket = setTicket(-60, ParkingType.BIKE);
-
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> fareCalculatorService.calculateFare(ticket, false));
-    }
-
-    @Test
-    public void calculateFareBikeWithLessThanOneHourParkingTime(){
-        Ticket ticket = setTicket(45, ParkingType.BIKE);
-
-        fareCalculatorService.calculateFare(ticket, false);
-
-        assertThat(ticket.getPrice()).isEqualTo(0.75);
-    }
-
-    @Test
-    public void calculateFareCarWithLessThanOneHourParkingTime(){
-        Ticket ticket = setTicket(45, ParkingType.CAR);
-
-        fareCalculatorService.calculateFare(ticket, false);
-
-        assertThat(ticket.getPrice()).isEqualTo(1.13);
-    }
-
-    @Test
-    public void calculateFareCarWithMoreThanADayParkingTime() {
-        Ticket ticket = setTicket(24 * 60, ParkingType.CAR);
-
-        fareCalculatorService.calculateFare(ticket, false);
-
-        assertThat(ticket.getPrice()).isEqualTo(36);
-    }
-
-    @Test
-    public void calculateFareCarRecurrentUser() {
-        ticket = setTicket(60, ParkingType.CAR);
+    @ParameterizedTest
+    @MethodSource("calculateFareRecurrentUserArguments")
+    public void calculateFareRecurrentUser(int parkingTimeInMinutes,
+                                           ParkingType parkingType,
+                                           double expectedPrice) {
+        ticket = setTicket(parkingTimeInMinutes, parkingType);
 
         fareCalculatorService.calculateFare(ticket, true);
 
-        assertThat(ticket.getPrice()).isEqualTo(1.43);
-    }
-
-    @Test
-    public void calculateFareBikeRecurrentUser() {
-        Ticket ticket = setTicket(60, ParkingType.BIKE);
-
-        fareCalculatorService.calculateFare(ticket, true);
-
-        assertThat(ticket.getPrice()).isEqualTo(0.95);
+        assertThat(ticket.getPrice()).isEqualTo(expectedPrice);
     }
 
     private Ticket setTicket(int parkingTimeInMinutes, ParkingType parkingType) {

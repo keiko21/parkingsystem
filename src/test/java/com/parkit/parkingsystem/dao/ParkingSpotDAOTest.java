@@ -5,16 +5,21 @@ import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
 import com.parkit.parkingsystem.integration.service.DataBasePrepareService;
 import com.parkit.parkingsystem.model.ParkingSpot;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -23,26 +28,26 @@ import static org.mockito.Mockito.when;
 class ParkingSpotDAOTest {
     private static final boolean AVAILABLE = true;
     private static final int PARKING_NUMBER = 1;
-    private static DataBasePrepareService dataBasePrepareService;
-    private static DataBaseTestConfig dataBaseTestConfig;
-    private static ParkingSpotDAO parkingSpotDAO;
+    private DataBaseTestConfig dataBaseTestConfig;
+    private ParkingSpotDAO parkingSpotDAO;
     @Mock
-    private static ParkingSpot parkingSpot;
-
-    @BeforeAll
-    static void setUp() {
-        dataBaseTestConfig = new DataBaseTestConfig();
-        dataBasePrepareService = new DataBasePrepareService();
-        parkingSpotDAO = new ParkingSpotDAO(dataBaseTestConfig);
-    }
+    private ParkingSpot parkingSpot;
 
     @BeforeEach
     void setUpPerTest() {
+        dataBaseTestConfig = new DataBaseTestConfig();
+        parkingSpotDAO = new ParkingSpotDAO(dataBaseTestConfig);
+    }
+
+    @AfterEach
+    void afterEachTest() {
+        DataBasePrepareService dataBasePrepareService = new DataBasePrepareService();
         dataBasePrepareService.clearDataBaseEntries();
     }
 
     @Test
-    void getNextAvailableSlotForCar() throws SQLException, ClassNotFoundException {
+    void getNextAvailableSlot() throws SQLException,
+            ClassNotFoundException {
         setAvailableFirstParkingSpotIntoDatabase();
 
         assertThat(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).isEqualTo(1);
@@ -60,8 +65,9 @@ class ParkingSpotDAOTest {
     private void setAvailableFirstParkingSpotIntoDatabase() throws
             SQLException, ClassNotFoundException {
         final PreparedStatement preparedStatement
-                = dataBaseTestConfig.getConnection()
-                .prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
+                =
+                dataBaseTestConfig.getConnection()
+                        .prepareStatement(DBConstants.UPDATE_PARKING_SPOT);
         preparedStatement.setBoolean(1, AVAILABLE);
         preparedStatement.setInt(2, PARKING_NUMBER);
         preparedStatement.execute();

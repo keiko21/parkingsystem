@@ -6,9 +6,12 @@ import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
 import com.parkit.parkingsystem.integration.service.DataBasePrepareService;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,19 +27,18 @@ class TicketDAOTest {
     private static final double PRICE = 1.5;
     private static final boolean AVAILABLE = true;
     public static final String VEHICLE_REG_NUMBER_ABCDEF = "ABCDEF";
-    private static DataBasePrepareService dataBasePrepareService;
-    private static DataBaseTestConfig dataBaseTestConfig;
-    private static TicketDAO ticketDAO;
-
-    @BeforeAll
-    static void setUp() {
-        dataBaseTestConfig = new DataBaseTestConfig();
-        dataBasePrepareService = new DataBasePrepareService();
-        ticketDAO = new TicketDAO(dataBaseTestConfig);
-    }
+    private DataBaseTestConfig dataBaseTestConfig;
+    private TicketDAO ticketDAO;
 
     @BeforeEach
     void setUpPerTest() {
+        dataBaseTestConfig = new DataBaseTestConfig();
+        ticketDAO = new TicketDAO(dataBaseTestConfig);
+    }
+
+    @AfterEach
+    void afterEachTest() {
+        DataBasePrepareService dataBasePrepareService = new DataBasePrepareService();
         dataBasePrepareService.clearDataBaseEntries();
     }
 
@@ -55,7 +57,7 @@ class TicketDAOTest {
 
     @Test
     void saveTicket() throws SQLException, ClassNotFoundException {
-        ticketDAO.saveTicket(getFakeTicket());
+        ticketDAO.saveTicket(expectedTicket());
         final ResultSet ticketFromDatabase = getTicketFromDatabase();
 
         int parkingNumber = 1;
@@ -99,6 +101,43 @@ class TicketDAOTest {
         assertThat(price).isEqualTo(ticket.getPrice());
     }
 
+    @Test
+    void updateParking() throws SQLException, ClassNotFoundException {
+        setTicketInDatabase();
+
+        Ticket mockedTicket = Mockito.mock(Ticket.class);
+        Mockito.when(mockedTicket.getId()).thenReturn(1);
+        final double updatedPrice = 0.0;
+        Mockito.when(mockedTicket.getPrice()).thenReturn(updatedPrice);
+        final LocalDateTime updatedOutDate = LocalDateTime.of(2020, 1, 1, 2, 0, 0);
+        Mockito.when(mockedTicket.getOutTime()).thenReturn(updatedOutDate);
+
+        boolean updatedTicket = ticketDAO.updateTicket(mockedTicket);
+
+        final ResultSet ticketFromDatabase = getTicketFromDatabase();
+
+        int parkingNumber = -1;
+        int id = -1;
+        double price = -1.0;
+        Timestamp inTime = Timestamp.from(Instant.MIN);
+        Timestamp outTime = Timestamp.from(Instant.MAX);
+
+        if (ticketFromDatabase.next()) {
+            parkingNumber = ticketFromDatabase.getInt(1);
+            id = ticketFromDatabase.getInt(2);
+            price = ticketFromDatabase.getDouble(3);
+            inTime = ticketFromDatabase.getTimestamp(4);
+            outTime = ticketFromDatabase.getTimestamp(5);
+        }
+
+        assertThat(updatedTicket).isTrue();
+        assertThat(parkingNumber).isEqualTo(1);
+        assertThat(id).isEqualTo(1);
+        assertThat(price).isEqualTo(updatedPrice);
+        assertThat(inTime.toLocalDateTime()).isEqualTo(LocalDateTime.of(2020, 1, 1, 0, 0, 0));
+        assertThat(outTime.toLocalDateTime()).isEqualTo(updatedOutDate);
+    }
+
     private void setParkingInDatabase() throws
             SQLException, ClassNotFoundException {
         final PreparedStatement preparedStatement
@@ -124,7 +163,7 @@ class TicketDAOTest {
         preparedStatement.execute();
     }
 
-    private Ticket getFakeTicket() {
+    private Ticket expectedTicket() {
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
 
         Ticket ticket = new Ticket();

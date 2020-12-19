@@ -74,7 +74,6 @@ public class ParkingService {
             if (parkingSpot != null && parkingSpot.getId() > 0) {
                 String vehicleRegNumber = getVehichleRegNumber();
                 parkingSpot.setAvailable(false);
-                //allot this parking space and mark it's availability as false
                 parkingSpotDAO.updateParking(parkingSpot);
 
                 LocalDateTime inTime = LocalDateTime.now();
@@ -101,31 +100,6 @@ public class ParkingService {
         } catch (Exception e) {
             LOGGER.error("Unable to process incoming vehicle", e);
         }
-    }
-
-    /**
-     * Get next parking number if available parking spot.
-     *
-     * @return the parking spot available
-     */
-    public ParkingSpot getNextParkingNumberIfAvailable() {
-        int parkingNumber;
-        ParkingSpot parkingSpot = null;
-        try {
-            ParkingType parkingType = getVehichleType();
-            parkingNumber = parkingSpotDAO.getNextAvailableSlot(parkingType);
-            if (parkingNumber > 0) {
-                parkingSpot = new ParkingSpot(parkingNumber, parkingType, true);
-            } else {
-                throw new Exception("Error fetching parking number from DB. "
-                        + "Parking slots might be full");
-            }
-        } catch (IllegalArgumentException ie) {
-            LOGGER.error("Error parsing user input for type of vehicle", ie);
-        } catch (Exception e) {
-            LOGGER.error("Error fetching next available parking slot", e);
-        }
-        return parkingSpot;
     }
 
     /**
@@ -156,6 +130,31 @@ public class ParkingService {
         } catch (Exception e) {
             LOGGER.error("Unable to process exiting vehicle", e);
         }
+    }
+
+    /**
+     * Get next parking number if available parking spot.
+     *
+     * @return the parking spot available
+     */
+    private ParkingSpot getNextParkingNumberIfAvailable() {
+        int parkingNumber;
+        ParkingSpot parkingSpot = null;
+        try {
+            ParkingType parkingType = getVehichleType();
+            parkingNumber = parkingSpotDAO.getNextAvailableSlot(parkingType);
+            if (parkingNumber > 0) {
+                parkingSpot = new ParkingSpot(parkingNumber, parkingType, true);
+            } else {
+                throw new Exception("Error fetching parking number from DB. "
+                        + "Parking slots might be full");
+            }
+        } catch (IllegalArgumentException ie) {
+            LOGGER.error("Error parsing user input for type of vehicle", ie);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching next available parking slot", e);
+        }
+        return parkingSpot;
     }
 
     /**
